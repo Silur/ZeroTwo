@@ -1,4 +1,5 @@
 # ZeroTwo
+[![crate](https://img.shields.io/crates/v/zerotwo.svg)](https://crates.io/crates/zerotwo)
 
 This is an elliptic curve instantiation of the [authentication scheme](https://arxiv.org/abs/1907.12398v1) designed by Laurent Chuat, Sarah Plocher, Adrian Perrig.
 
