@@ -1,6 +1,6 @@
 [package]
 name = "zerotwo"
-version = "0.9.0"
+version = "0.9.1"
 authors = ["Silur <abrahamendre9@gmail.com>"]
 description = "ZeroTwo authentication protocol with wasm bindings"
 edition = "2018"

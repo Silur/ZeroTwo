@@ -46,11 +46,22 @@ pub struct Proof {
 #[wasm_bindgen]
 impl KeyPair {
     pub fn to_js(&self) -> JsValue {
-        JsValue::from_serde(&self).unwrap()
+        let mut buf = self.private.to_bytes().to_vec();
+        buf.append(&mut self.public.to_bytes());
+        JsValue::from_serde(&buf).unwrap()
     }
 
     pub fn from_js(v: &JsValue) -> KeyPair {
-        v.into_serde().unwrap()
+        let buf: Vec<u8> = v.into_serde().unwrap();
+        let mut xbuf = [0u8; 32];
+        let mut pbuf = [0u8; 32];
+        for i in 0..32 {
+            xbuf[i] = buf[i];
+            pbuf[i] = buf[32+i];
+        }
+        let x = Scalar::from_canonical_bytes(xbuf).unwrap();
+        let gx = CompressedRistretto::from_slice(&pbuf);
+        KeyPair{private: x, public: ECPoint{p: gx}}
     }
 
 	// we need a separate getter for wasm
@@ -66,12 +77,43 @@ impl ECPoint {
     pub fn to_bytes(&self) -> Vec<u8> {
         self.p.to_bytes().to_vec()
     }
+}
+
+#[wasm_bindgen]
+impl ECPoint {
     pub fn to_js(&self) -> JsValue {
-        JsValue::from_serde(&self.p).unwrap()
+        JsValue::from_serde(&self.to_bytes()).unwrap()
     }
 
     pub fn from_js(v: &JsValue) -> ECPoint {
-        ECPoint{p: v.into_serde().unwrap()}
+        let buf: Vec<u8> = v.into_serde().unwrap();
+        let mut pbuf = [0u8; 32];
+        for i in 0..32 {
+            pbuf[i] = buf[i];
+        }
+        let p = CompressedRistretto::from_slice(&pbuf);
+        ECPoint{p: p}
+    }
+}
+
+#[wasm_bindgen]
+impl Proof {
+    pub fn to_js(&self) -> JsValue {
+        let mut buf = self.p.to_bytes();
+        buf.append(&mut self.hmac.to_vec());
+        JsValue::from_serde(&buf).unwrap()
+    }
+
+    pub fn from_js(v: &JsValue) -> Proof {
+        let buf: Vec<u8> = v.into_serde().unwrap();
+        let mut pbuf = [0u8; 32];
+        let mut hbuf = [0u8; 32];
+        for i in 0..32 {
+            pbuf[i] = buf[i];
+            hbuf[i] = buf[32+i];
+        }
+        let p = CompressedRistretto::from_slice(&pbuf);
+        Proof{p: ECPoint{p: p}, hmac: hbuf}
     }
 }
 
