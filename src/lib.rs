@@ -1,4 +1,3 @@
-#![feature(test)]
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
@@ -9,7 +8,6 @@ use wasm_bindgen::prelude::*;
 extern crate curve25519_dalek;
 extern crate sha3;
 extern crate rand;
-extern crate test;
 
 use rand::rngs::{OsRng};
 use crate::rand::RngCore;
@@ -223,7 +221,6 @@ pub fn verify(user_id: &[u8],
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test::Bencher;
     #[test]
     fn it_works() {
         let master_secret = "Keep my secret darling!".as_bytes().to_vec();
@@ -241,8 +238,8 @@ mod tests {
     fn wasm_helpers() {
     }
 
-    #[bench]
+/*    #[bench]
     fn benchmark(b: &mut Bencher) {
         b.iter(|| it_works());
-    }
+    }*/
 }
