@@ -13,7 +13,8 @@ use rand::rngs::{OsRng};
 use crate::rand::RngCore;
 use curve25519_dalek::scalar::Scalar;
 use curve25519_dalek::ristretto::{RistrettoPoint, CompressedRistretto};
-use sha3::{Digest, Sha3_256};
+use sha3::{Digest, Sha3_256, Sha3_512};
+use std::convert::TryInto;
 
 lazy_static! {
     static ref G: RistrettoPoint = curve25519_dalek::constants::RISTRETTO_BASEPOINT_COMPRESSED.decompress().unwrap();
@@ -117,13 +118,9 @@ impl Proof {
 
 fn sha3(data: &Vec<u8>) -> [u8; 32] {
     let mut hasher = Sha3_256::new();
-    hasher.input(data);
-    let r = hasher.result();
-    let mut ret = [0u8; 32];
-    for i in 0..32 {
-        ret[i] = r[i];
-    }
-    ret
+    hasher.update(data);
+    let r = hasher.finalize();
+    r[..].try_into().unwrap()
 }
 fn hash_to_scalar(args: &mut [&Vec<u8>]) -> Scalar {
     let mut input = args[0].clone();
@@ -234,10 +231,6 @@ mod tests {
         assert!(verify(&user_id, &server_id, challenge, proof, &verifier.public, duration));
     }
     
-    #[test]
-    fn wasm_helpers() {
-    }
-
 /*    #[bench]
     fn benchmark(b: &mut Bencher) {
         b.iter(|| it_works());
