@@ -4,17 +4,18 @@ extern crate lazy_static;
 extern crate serde_derive;
 
 extern crate wasm_bindgen;
-use wasm_bindgen::prelude::*;
 extern crate curve25519_dalek;
 extern crate sha3;
 extern crate rand;
 
+use wasm_bindgen::prelude::wasm_bindgen;
 use rand::rngs::{OsRng};
 use crate::rand::RngCore;
 use curve25519_dalek::scalar::Scalar;
 use curve25519_dalek::ristretto::{RistrettoPoint, CompressedRistretto};
-use sha3::{Digest, Sha3_256, Sha3_512};
+use sha3::{Digest, Sha3_256};
 use std::convert::TryInto;
+use wasm_bindgen::JsValue;
 
 lazy_static! {
     static ref G: RistrettoPoint = curve25519_dalek::constants::RISTRETTO_BASEPOINT_COMPRESSED.decompress().unwrap();
@@ -47,11 +48,11 @@ impl KeyPair {
     pub fn to_js(&self) -> JsValue {
         let mut buf = self.private.to_bytes().to_vec();
         buf.append(&mut self.public.to_bytes());
-        JsValue::from_serde(&buf).unwrap()
+        serde_wasm_bindgen::to_value(&buf).expect("cannot deserialize")
     }
 
-    pub fn from_js(v: &JsValue) -> KeyPair {
-        let buf: Vec<u8> = v.into_serde().unwrap();
+    pub fn from_js(v: JsValue) -> KeyPair {
+        let buf: Vec<u8> = serde_wasm_bindgen::from_value(v).expect("cannot deserialize");
         let mut xbuf = [0u8; 32];
         let mut pbuf = [0u8; 32];
         for i in 0..32 {
@@ -81,11 +82,11 @@ impl ECPoint {
 #[wasm_bindgen]
 impl ECPoint {
     pub fn to_js(&self) -> JsValue {
-        JsValue::from_serde(&self.to_bytes()).unwrap()
+        serde_wasm_bindgen::to_value(&self.to_bytes()).expect("cannot serialize")
     }
 
-    pub fn from_js(v: &JsValue) -> ECPoint {
-        let buf: Vec<u8> = v.into_serde().unwrap();
+    pub fn from_js(v: JsValue) -> ECPoint {
+        let buf: Vec<u8> = serde_wasm_bindgen::from_value(v).expect("cannot deserialize");
         let mut pbuf = [0u8; 32];
         for i in 0..32 {
             pbuf[i] = buf[i];
@@ -100,11 +101,11 @@ impl Proof {
     pub fn to_js(&self) -> JsValue {
         let mut buf = self.p.to_bytes();
         buf.append(&mut self.hmac.to_vec());
-        JsValue::from_serde(&buf).unwrap()
+        serde_wasm_bindgen::to_value(&buf).expect("cannot serialize")
     }
 
-    pub fn from_js(v: &JsValue) -> Proof {
-        let buf: Vec<u8> = v.into_serde().unwrap();
+    pub fn from_js(v: JsValue) -> Proof {
+        let buf: Vec<u8> = serde_wasm_bindgen::from_value(v).expect("cannot deserialize");
         let mut pbuf = [0u8; 32];
         let mut hbuf = [0u8; 32];
         for i in 0..32 {

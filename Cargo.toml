@@ -1,6 +1,6 @@
 [package]
 name = "zerotwo"
-version = "0.9.3"
+version = "0.9.4"
 authors = ["Silur <abrahamendre9@gmail.com>"]
 description = "ZeroTwo authentication protocol with wasm bindings"
 edition = "2018"
@@ -12,22 +12,24 @@ readme = "README.md"
 [dependencies]
 sha3 = "0.9.1"
 lazy_static = "1.4.0"
-serde = "1.0.123"
-serde_derive = "1.0.123"
+serde = "1.0.152"
+serde_derive = "1.0.152"
+serde-wasm-bindgen = "0.4.5"
+
 
 [dependencies.rand]
-version = "0.8.3"
+version = "0.8.5"
 
 [dependencies.curve25519-dalek]
-version = "3.1.0"
+version = "3.2.1"
 features = ["serde"]
 
 [dependencies.wasm-bindgen]
-version = "0.2.70"
+version = "0.2.84"
 features = ["serde-serialize"]
 
 [dependencies.getrandom]
-version = "0.2.2"
+version = "0.2.8"
 features = ["js"]
 
 [lib]

@@ -30,7 +30,7 @@ assert!(verify(&user_id, &server_id, challenge, proof, &verifier.public, duratio
 
 If you have [wasm-pack](https://rustwasm.github.io/wasm-pack/) set up you can build the library using:
 
-`wasm-pack build`
+`wasm-pack build` or `wasm-pack build --target=nodejs` for node
 
 This generates the bindings under `/pkg` which you can use as seen in `test.js`
 
